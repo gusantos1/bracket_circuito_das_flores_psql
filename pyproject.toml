@@ -1,0 +1,31 @@
+[project]
+name = "camp-bt"
+version = "0.1.0"
+description = "Campeonato de beatch tennis"
+authors = [
+    {name = "Guilherme",email = "gusantos.ok@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+ignore = ['E402', 'F811']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
