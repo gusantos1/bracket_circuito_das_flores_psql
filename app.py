@@ -20,7 +20,7 @@ def load_state():
         with open(STATE_FILE, "rb") as f:
             try:
                 return pickle.load(f)
-            except EOFError: # Lida com o caso de arquivo vazio ou corrompido
+            except EOFError:
                 return None
     return None
 
@@ -32,38 +32,80 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# A função display_match_results não precisa de alteração.
+# --- FUNÇÃO DE EXIBIÇÃO DE JOGOS (ATUALIZADA) ---
 def display_match_results(bracket_side, bracket_data):
+    """
+    Exibe os jogos com campos de placar sempre editáveis para acompanhar as parciais.
+    """
     st.subheader(f"Jogos da Chave {bracket_side.capitalize()}")
+
+    # O formulário agrupa todos os jogos de uma chave para salvar as alterações de uma só vez.
     with st.form(key=f"form_{bracket_side}"):
         for i, match in enumerate(bracket_data, 1):
             dupla1_str = f"{match['first'][0]} & {match['first'][1]}"
             dupla2_str = f"{match['second'][0]} & {match['second'][1]}"
+
             with st.container(border=True):
                 st.markdown(f"**Jogo {i}**: `{dupla1_str}` vs `{dupla2_str}`")
-                if match.get('winner'):
-                    score1, score2 = match.get('score1', 'N/A'), match.get('score2', 'N/A')
-                    if match['winner'] == 'dupla1': st.success(f"👑 Vencedor: {dupla1_str}")
-                    elif match['winner'] == 'dupla2': st.success(f"👑 Vencedor: {dupla2_str}")
-                    elif match['winner'] == 'draw': st.info("🤝 Empate")
-                    st.write(f"Placar Final: **{score1}** a **{score2}**")
-                else:
-                    cols = st.columns([2, 2])
-                    with cols[0]: score1 = st.number_input(f"Placar: {dupla1_str}", min_value=0, key=f"{bracket_side}_{i}_score1")
-                    with cols[1]: score2 = st.number_input(f"Placar: {dupla2_str}", min_value=0, key=f"{bracket_side}_{i}_score2")
-        submitted = st.form_submit_button("Registrar Pontuações da Chave", use_container_width=True)
+
+                # Os campos de placar estão sempre visíveis e pré-preenchidos.
+                cols = st.columns(2)
+                with cols[0]:
+                    score1 = st.number_input(
+                        "Placar Dupla 1",
+                        min_value=0,
+                        # Pré-preenche com o valor salvo, ou 0 se for um novo jogo.
+                        value=match.get('score1', 0),
+                        key=f"{bracket_side}_{i}_score1",
+                        label_visibility="collapsed"
+                    )
+                with cols[1]:
+                    score2 = st.number_input(
+                        "Placar Dupla 2",
+                        min_value=0,
+                        # Pré-preenche com o valor salvo, ou 0 se for um novo jogo.
+                        value=match.get('score2', 0),
+                        key=f"{bracket_side}_{i}_score2",
+                        label_visibility="collapsed"
+                    )
+                
+                # Mostra o status atual (parcial) do jogo, se já foi registrado antes.
+                if 'winner' in match:
+                    status_text = ""
+                    if match['winner'] == 'dupla1':
+                        status_text = f"👑 Parcial: **{dupla1_str}** vencendo"
+                    elif match['winner'] == 'dupla2':
+                        status_text = f"👑 Parcial: **{dupla2_str}** vencendo"
+                    else: # draw
+                        status_text = "🤝 Parcial: Empate"
+                    st.caption(status_text)
+
+
+        # Um único botão para salvar todas as alterações da chave.
+        submitted = st.form_submit_button("Salvar Parciais / Resultados", use_container_width=True)
         if submitted:
+            # Itera sobre todos os jogos no formulário para atualizar seus dados.
             for i, match in enumerate(bracket_data, 1):
-                if not match.get('winner'):
-                    score1_val = st.session_state[f"{bracket_side}_{i}_score1"]
-                    score2_val = st.session_state[f"{bracket_side}_{i}_score2"]
-                    if score1_val > score2_val: match['winner'] = 'dupla1'
-                    elif score2_val > score1_val: match['winner'] = 'dupla2'
-                    else: match['winner'] = 'draw'
-                    match['score1'], match['score2'] = score1_val, score2_val
-            save_state(st.session_state.bracket_maker) # SALVA O ESTADO
-            st.toast(f"Resultados da Chave {bracket_side.capitalize()} salvos!")
+                score1_val = st.session_state[f"{bracket_side}_{i}_score1"]
+                score2_val = st.session_state[f"{bracket_side}_{i}_score2"]
+                
+                # Determina o vencedor com base nos placares atuais.
+                if score1_val > score2_val:
+                    match['winner'] = 'dupla1'
+                elif score2_val > score1_val:
+                    match['winner'] = 'dupla2'
+                else: # Empate
+                    match['winner'] = 'draw'
+
+                # Atualiza os placares no dicionário do jogo.
+                match['score1'] = score1_val
+                match['score2'] = score2_val
+            
+            # Salva o estado completo do campeonato no arquivo.
+            save_state(st.session_state.bracket_maker)
+            st.toast(f"Placares da Chave {bracket_side.capitalize()} atualizados!")
             st.rerun()
+
 
 # A função de ranking não precisa de alterações.
 def calculate_and_display_ranking(bracket_side_name, bracket_data, athletes_list):
@@ -90,8 +132,6 @@ def calculate_and_display_ranking(bracket_side_name, bracket_data, athletes_list
 def main():
     st.title("Painel do Campeonato")
 
-    # --- LÓGICA DE CARREGAMENTO DO ESTADO ---
-    # Se o 'bracket_maker' não está na sessão, tenta carregar do arquivo
     if 'bracket_maker' not in st.session_state:
         loaded_bracket_maker = load_state()
         if loaded_bracket_maker:
@@ -102,20 +142,18 @@ def main():
 
     bracket_maker = st.session_state.bracket_maker
 
-    # --- BARRA LATERAL (SIDEBAR) ---
     with st.sidebar:
         st.header("⚙️ Configuração")
-        
         with st.expander("Adicionar Atletas", expanded=not bracket_maker.athlete_by_side['left'].values):
-            is_random_assignment = st.toggle("Distribuir aleatoriamente", value=True, help="Distribuição aleatória ou manual.")
+            is_random_assignment = st.toggle("Distribuir aleatoriamente", value=True)
             if is_random_assignment:
-                athletes_input = st.text_area("Insira todos os nomes (um por linha)", height=250)
+                athletes_input = st.text_area("Insira todos os nomes", height=250)
                 if st.button("Adicionar e Sortear Lados"):
                     athletes = [name.strip() for name in athletes_input.split('\n') if name.strip()]
                     if athletes and len(athletes) % 2 == 0:
                         st.session_state.bracket_maker = Bracket(limit=len(athletes) // 2)
                         for athlete in athletes: st.session_state.bracket_maker.add_athlete(athlete, random=True)
-                        save_state(st.session_state.bracket_maker) # SALVA O ESTADO
+                        save_state(st.session_state.bracket_maker)
                         st.rerun()
                     else: st.error("Insira um número par de atletas.")
             else:
@@ -128,20 +166,16 @@ def main():
                         st.session_state.bracket_maker = Bracket(limit=len(left_athletes))
                         for athlete in left_athletes: st.session_state.bracket_maker.add_athlete(athlete, side='left')
                         for athlete in right_athletes: st.session_state.bracket_maker.add_athlete(athlete, side='right')
-                        save_state(st.session_state.bracket_maker) # SALVA O ESTADO
+                        save_state(st.session_state.bracket_maker)
                         st.rerun()
                     else: st.error("Ambos os lados devem ter o mesmo número de atletas.")
-
         st.markdown("---")
-        # Botão para resetar o campeonato
         st.warning("Atenção: A ação abaixo é irreversível.")
         if st.button("🔴 Resetar Campeonato", use_container_width=True):
-            if os.path.exists(STATE_FILE):
-                os.remove(STATE_FILE)
+            if os.path.exists(STATE_FILE): os.remove(STATE_FILE)
             st.session_state.clear()
             st.rerun()
 
-    # (O resto da lógica de exibição permanece a mesma)
     st.markdown("---")
     st.header("Atletas por Chave")
     col1, col2 = st.columns(2)
@@ -162,17 +196,17 @@ def main():
         if st.button("Gerar Jogos", use_container_width=True, type="primary"):
             bracket_maker.gen_combinations('left'); bracket_maker.gen_combinations('right')
             bracket_maker.gen_brackets()
-            save_state(bracket_maker) # SALVA O ESTADO
+            save_state(bracket_maker)
             st.rerun()
 
     left_display_brackets = bracket_maker.shuffle_brackets['left'] or bracket_maker.brackets['left']
     right_display_brackets = bracket_maker.shuffle_brackets['right'] or bracket_maker.brackets['right']
 
     if left_display_brackets:
-        st.header("Resultados dos Jogos")
+        st.header("Resultados e Parciais dos Jogos")
         if st.button("Embaralhar Ordem dos Jogos", use_container_width=True):
             bracket_maker.gen_shuffle_brackets('left'); bracket_maker.gen_shuffle_brackets('right')
-            save_state(bracket_maker) # SALVA O ESTADO
+            save_state(bracket_maker)
             st.rerun()
         col3, col4 = st.columns(2)
         with col3: display_match_results('esquerda', left_display_brackets)
