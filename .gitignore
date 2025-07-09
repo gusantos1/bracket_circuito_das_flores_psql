@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints
+.vscode/
+
+# Poetry
+poetry.lock  # Ignorar o arquivo de lock do Poetry se você não quiser versioná-lo para builds reproduzíveis.
+             # Se você usa Poetry e quer builds reproduzíveis em diferentes ambientes,
+             # você PODE querer incluir este arquivo. Para a maioria dos casos de uso,
+             # especialmente se você está começando, ignorá-lo é comum.
+
+# Arquivos de estado/dados gerados
+championship_state.pkl
+
+# Logs
+*.log
+*.logs
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
