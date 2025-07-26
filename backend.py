@@ -31,12 +31,11 @@ class Bracket:
 
     def __init__(self, limit: int = 8):
         self.__limit = limit
-        
 
         self.distribution = self._create_side_distribution(
             'left'
         ) + self._create_side_distribution('right')
-        
+
         self.athlete_by_side = {
             'left': Side(values=deque(maxlen=self.__limit), brackets=False),
             'right': Side(values=deque(maxlen=self.__limit), brackets=False),
@@ -85,7 +84,9 @@ class Bracket:
                     next_team = combination[position]
                     player_one, player_two = current_team
                     if {player_one, player_two}.isdisjoint(next_team):
-                        match = asdict(Match(first=current_team, second=next_team))
+                        match = asdict(
+                            Match(first=current_team, second=next_team)
+                        )
                         self.brackets[side].append(match)
                         combination.remove(current_team)
                         combination.remove(next_team)
@@ -100,11 +101,33 @@ class Bracket:
         self.shuffle_brackets[side] = bracket
         return bracket
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     m = Bracket(limit=8)
-    group_1 = ["Carol", "Paloma", "Sarah", "Lari", "Thayna", "Isabella", "Isa Pires", "Rayza"]
-    group_2 = ["Clara", "Cinthia", "Sther", "Marina", "Duda", "Inês", "Gabi", "Joana"]
-    for name in group_1: m.add_athlete(name, side='left', random=False)
-    for name in group_2: m.add_athlete(name, side='right', random=False)
-    m.gen_combinations('left'); m.gen_combinations('right')
+    group_1 = [
+        'Carol',
+        'Paloma',
+        'Sarah',
+        'Lari',
+        'Thayna',
+        'Isabella',
+        'Isa Pires',
+        'Rayza',
+    ]
+    group_2 = [
+        'Clara',
+        'Cinthia',
+        'Sther',
+        'Marina',
+        'Duda',
+        'Inês',
+        'Gabi',
+        'Joana',
+    ]
+    for name in group_1:
+        m.add_athlete(name, side='left', random=False)
+    for name in group_2:
+        m.add_athlete(name, side='right', random=False)
+    m.gen_combinations('left')
+    m.gen_combinations('right')
     m.gen_brackets()

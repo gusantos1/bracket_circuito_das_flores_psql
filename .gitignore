@@ -28,3 +28,4 @@ championship_state.pkl
 # Arquivos de sistema operacional
 .DS_Store
 Thumbs.db
+config.toml
