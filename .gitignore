@@ -29,3 +29,4 @@ championship_state.pkl
 .DS_Store
 Thumbs.db
 config.toml
+.streamlit/secrets.toml
