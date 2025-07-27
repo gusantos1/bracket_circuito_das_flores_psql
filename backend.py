@@ -84,7 +84,10 @@ class Bracket:
         expected_games = math.comb(self.__limit, 2) // 2
 
         for side in get_args(SideVar):
-            if not self.combinations[side] or not self.combinations[side].values:
+            if (
+                not self.combinations[side]
+                or not self.combinations[side].values
+            ):
                 continue
 
             # Adiciona um loop de tentativas para garantir o resultado desejado
@@ -92,7 +95,7 @@ class Bracket:
             for _ in range(MAX_TRIES):
                 # Limpa os resultados da tentativa anterior para este lado
                 self.brackets[side] = []
-                
+
                 # Pega e embaralha a lista de combinações
                 combination_list = list(self.combinations[side].values)
                 random.shuffle(combination_list)
@@ -108,19 +111,108 @@ class Bracket:
 
                     if opponent_found_index != -1:
                         next_team = combination_list.pop(opponent_found_index)
-                        match = asdict(Match(first=current_team, second=next_team))
+                        match = asdict(
+                            Match(first=current_team, second=next_team)
+                        )
                         self.brackets[side].append(match)
-                
+
                 # --- VERIFICAÇÃO DE SUCESSO ---
                 # Se o número de jogos gerados for o esperado, para as tentativas.
                 if len(self.brackets[side]) == expected_games:
                     break
-            
+
             # Se após todas as tentativas não conseguir o número esperado, pode lançar um aviso (opcional)
             if len(self.brackets[side]) != expected_games:
-                print(f"Aviso: Não foi possível gerar os {expected_games} jogos esperados para o lado '{side}' após {MAX_TRIES} tentativas.")
+                print(
+                    f"Aviso: Não foi possível gerar os {expected_games} jogos esperados para o lado '{side}' após {MAX_TRIES} tentativas."
+                )
 
         return self.brackets
+
+    def gen_brackets(self) -> Deque:
+        static_left = [
+            {'first': ('Rayza', 'Paloma'), 'second': ('Larissa', 'Sarah')},
+            {
+                'first': ('Isabella', 'Isa Pires'),
+                'second': ('Carol', 'Thayna'),
+            },
+            {'first': ('Rayza', 'Larissa'), 'second': ('Isabella', 'Thayna')},
+            {'first': ('Paloma', 'Sarah'), 'second': ('Carol', 'Isa Pires')},
+            {'first': ('Rayza', 'Sarah'), 'second': ('Carol', 'Isabella')},
+            {
+                'first': ('Larissa', 'Isa Pires'),
+                'second': ('Thayna', 'Paloma'),
+            },
+            {'first': ('Rayza', 'Isa Pires'), 'second': ('Paloma', 'Carol')},
+            {'first': ('Sarah', 'Isa Pires'), 'second': ('Larissa', 'Thayna')},
+            {'first': ('Isabella', 'Paloma'), 'second': ('Rayza', 'Carol')},
+            {'first': ('Sarah', 'Carol'), 'second': ('Thayna', 'Isabella')},
+            {'first': ('Rayza', 'Thayna'), 'second': ('Isa Pires', 'Paloma')},
+            {'first': ('Larissa', 'Isabella'), 'second': ('Sarah', 'Paloma')},
+            {'first': ('Larissa', 'Carol'), 'second': ('Isa Pires', 'Rayza')},
+            {'first': ('Isabella', 'Paloma'), 'second': ('Thayna', 'Larissa')},
+        ]
+
+        static_right = [
+            {
+                'first': ('Clara', 'Ines'),
+                'second': ('Duda', 'Joana'),
+            },  # Jogo 1
+            {
+                'first': ('Sther', 'Cinthia'),
+                'second': ('Gabi', 'Ines'),
+            },  # Jogo 2
+            {
+                'first': ('Sther', 'Duda'),
+                'second': ('Ines', 'Joana'),
+            },  # Jogo 3
+            {
+                'first': ('Marina', 'Clara'),
+                'second': ('Gabi', 'Duda'),
+            },  # Jogo 4
+            {
+                'first': ('Sther', 'Ines'),
+                'second': ('Gabi', 'Joana'),
+            },  # Jogo 5
+            {
+                'first': ('Marina', 'Ines'),
+                'second': ('Cinthia', 'Joana'),
+            },  # Jogo 6
+            {
+                'first': ('Clara', 'Joana'),
+                'second': ('Duda', 'Ines'),
+            },  # Jogo 7
+            {
+                'first': ('Marina', 'Duda'),
+                'second': ('Sther', 'Gabi'),
+            },  # Jogo 8
+            {
+                'first': ('Sther', 'Clara'),
+                'second': ('Gabi', 'Cinthia'),
+            },  # Jogo 9
+            {
+                'first': ('Marina', 'Joana'),
+                'second': ('Cinthia', 'Duda'),
+            },  # Jogo 10
+            {
+                'first': ('Sther', 'Joana'),
+                'second': ('Clara', 'Cinthia'),
+            },  # Jogo 11
+            {
+                'first': ('Marina', 'Sther'),
+                'second': ('Clara', 'Gabi'),
+            },  # Jogo 12
+            {
+                'first': ('Marina', 'Cinthia'),
+                'second': ('Clara', 'Duda'),
+            },  # Jogo 13
+            {
+                'first': ('Marina', 'Gabi'),
+                'second': ('Cinthia', 'Ines'),
+            },  # Jogo 14
+        ]
+        self.brackets['right'].extend(static_right)
+        self.brackets['left'].extend(static_left)
 
     def gen_shuffle_brackets(self, side: SideVar) -> List[dict]:
         bracket = random.sample(self.brackets[side], len(self.brackets[side]))
@@ -157,3 +249,4 @@ if __name__ == '__main__':
     m.gen_combinations('left')
     m.gen_combinations('right')
     m.gen_brackets()
+    1
