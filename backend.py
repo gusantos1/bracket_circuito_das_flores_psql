@@ -73,26 +73,52 @@ class Bracket:
             return self.combinations[side].values
 
     def gen_brackets(self) -> Deque:
-        """Generate brackets based on the combinations of athletes."""
+        """
+        Gera os jogos (brackets) de forma aleatória, garantindo um número
+        balanceado e máximo de jogos através de um sistema de tentativas.
+        """
+        self.brackets = {'left': [], 'right': []}
+
+        # Calcula o número máximo de jogos esperado. Para 8 atletas, são C(8,2) = 28 duplas,
+        # resultando em 28 / 2 = 14 jogos.
+        expected_games = math.comb(self.__limit, 2) // 2
+
         for side in get_args(SideVar):
-            combination = copy(self.combinations[side].values)
-            c = count(1)
-            while len(combination) > 0:
-                position = next(c)
-                try:
-                    current_team = combination[0]
-                    next_team = combination[position]
-                    player_one, player_two = current_team
-                    if {player_one, player_two}.isdisjoint(next_team):
-                        match = asdict(
-                            Match(first=current_team, second=next_team)
-                        )
+            if not self.combinations[side] or not self.combinations[side].values:
+                continue
+
+            # Adiciona um loop de tentativas para garantir o resultado desejado
+            MAX_TRIES = 100  # Limite para evitar loops infinitos
+            for _ in range(MAX_TRIES):
+                # Limpa os resultados da tentativa anterior para este lado
+                self.brackets[side] = []
+                
+                # Pega e embaralha a lista de combinações
+                combination_list = list(self.combinations[side].values)
+                random.shuffle(combination_list)
+
+                # Loop para criar os jogos (mesma lógica da versão anterior)
+                while len(combination_list) >= 2:
+                    current_team = combination_list.pop(0)
+                    opponent_found_index = -1
+                    for i, next_team in enumerate(combination_list):
+                        if set(current_team).isdisjoint(set(next_team)):
+                            opponent_found_index = i
+                            break
+
+                    if opponent_found_index != -1:
+                        next_team = combination_list.pop(opponent_found_index)
+                        match = asdict(Match(first=current_team, second=next_team))
                         self.brackets[side].append(match)
-                        combination.remove(current_team)
-                        combination.remove(next_team)
-                        c = count(1)
-                except IndexError:
+                
+                # --- VERIFICAÇÃO DE SUCESSO ---
+                # Se o número de jogos gerados for o esperado, para as tentativas.
+                if len(self.brackets[side]) == expected_games:
                     break
+            
+            # Se após todas as tentativas não conseguir o número esperado, pode lançar um aviso (opcional)
+            if len(self.brackets[side]) != expected_games:
+                print(f"Aviso: Não foi possível gerar os {expected_games} jogos esperados para o lado '{side}' após {MAX_TRIES} tentativas.")
 
         return self.brackets
 
