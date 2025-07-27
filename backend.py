@@ -131,27 +131,22 @@ class Bracket:
 
     def gen_brackets(self) -> Deque:
         static_left = [
-            {'first': ('Rayza', 'Paloma'), 'second': ('Larissa', 'Sarah')},
-            {
-                'first': ('Isabella', 'Isa Pires'),
-                'second': ('Carol', 'Thayna'),
-            },
-            {'first': ('Rayza', 'Larissa'), 'second': ('Isabella', 'Thayna')},
-            {'first': ('Paloma', 'Sarah'), 'second': ('Carol', 'Isa Pires')},
-            {'first': ('Rayza', 'Sarah'), 'second': ('Carol', 'Isabella')},
-            {
-                'first': ('Larissa', 'Isa Pires'),
-                'second': ('Thayna', 'Paloma'),
-            },
-            {'first': ('Rayza', 'Isa Pires'), 'second': ('Paloma', 'Carol')},
-            {'first': ('Sarah', 'Isa Pires'), 'second': ('Larissa', 'Thayna')},
-            {'first': ('Isabella', 'Paloma'), 'second': ('Rayza', 'Carol')},
-            {'first': ('Sarah', 'Carol'), 'second': ('Thayna', 'Isabella')},
-            {'first': ('Rayza', 'Thayna'), 'second': ('Isa Pires', 'Paloma')},
-            {'first': ('Larissa', 'Isabella'), 'second': ('Sarah', 'Paloma')},
-            {'first': ('Larissa', 'Carol'), 'second': ('Isa Pires', 'Rayza')},
-            {'first': ('Isabella', 'Paloma'), 'second': ('Thayna', 'Larissa')},
-        ]
+    {'first': ('Carol', 'Rayza'), 'second': ('Lari', 'Isabella')},           # Jogo 1
+    {'first': ('Sarah', 'Isabella'), 'second': ('Thayna', 'Isa Pires')},    # Jogo 2
+    {'first': ('Thayna', 'Rayza'), 'second': ('Sarah', 'Isa Pires')},       # Jogo 3
+    {'first': ('Sarah', 'Rayza'), 'second': ('Lari', 'Isa Pires')},         # Jogo 4
+    {'first': ('Carol', 'Paloma'), 'second': ('Sarah', 'Thayna')},          # Jogo 5
+    {'first': ('Paloma', 'Isabella'), 'second': ('Isa Pires', 'Rayza')},    # Jogo 6
+    {'first': ('Isabella', 'Rayza'), 'second': ('Lari', 'Thayna')},         # Jogo 7
+    {'first': ('Carol', 'Thayna'), 'second': ('Paloma', 'Lari')},           # Jogo 8
+    {'first': ('Paloma', 'Isa Pires'), 'second': ('Thayna', 'Isabella')},   # Jogo 9
+    {'first': ('Paloma', 'Rayza'), 'second': ('Carol', 'Lari')},            # Jogo 10
+    {'first': ('Isabella', 'Isa Pires'), 'second': ('Carol', 'Sarah')},     # Jogo 11
+    {'first': ('Sarah', 'Lari'), 'second': ('Carol', 'Isabella')},          # Jogo 12
+    {'first': ('Carol', 'Isa Pires'), 'second': ('Paloma', 'Thayna')},      # Jogo 13
+    {'first': ('Paloma', 'Sarah'), 'second': ('Lari', 'Rayza')}             # Jogo 14
+]
+
 
         static_right = [
             {
